@@ -1,7 +1,6 @@
 """
 Classes and functions for the creation and processing of jobs
 """
-import sys
 import time
 import threading
 
@@ -29,10 +28,14 @@ class Job:
         self._first_response = http.send_request(self.name, self.sequence)
         try:
             self.project_id = self._first_response.json()["project_id"]
-        except KeyError:
-            print("Rate limit exceeded.")
-            time.sleep(60)
-        self.status = "SUBMITTED"
+            print(self._first_response.json())
+            if self._first_response.status_code == 429: raise RuntimeError
+        except (KeyError, TypeError, RuntimeError):
+            print(f"Job {self.name}: Rate limit exceeded.")
+            time.sleep(60)        
+        else:
+            print(f"Job {self.name} status: {self.status} -> SUBMITTED") 
+            self.status = "SUBMITTED"
 
     def update_status(self):
         """
@@ -43,6 +46,7 @@ class Job:
                 f"Cannot check status of Job {self.name} because it has not yet been submitted."
             )
         self._last_status_response = http.check_status(self.project_id)
+        print(f"Job {self.name} status: {self.status} -> {self._last_status_response.json()['status']}") 
         self.status = self._last_status_response.json()["status"]
 
     def fetch_results(self):
@@ -79,10 +83,13 @@ def submit_all_jobs(jobs):
     :param jobs: jobs
     """
     submit_threads = []
-    for job in jobs:
+    job_count = len(jobs)
+    for i, job in enumerate(jobs):
+        print(f"[{i+1}/{job_count}] Job {job.name}: submitting task...")
         thread = threading.Thread(target=job.submit_task)
         thread.start()
         submit_threads.append(thread)
+        time.sleep(5)
 
     for thread in submit_threads:
         thread.join()
@@ -95,10 +102,13 @@ def refresh_all_jobs(jobs, sleep=10):
     :param sleep: time sleeping after request
     """
     refresh_threads = []
-    for job in jobs:
+    job_count = len(jobs)
+    for i, job in enumerate(jobs):
+        print(f"[{i+1}/{job_count}] Job {job.name}: refreshing status...")
         thread = threading.Thread(target=job.update_status)
         thread.start()
         refresh_threads.append(thread)
+        time.sleep(1)
 
     for thread in refresh_threads:
         thread.join()

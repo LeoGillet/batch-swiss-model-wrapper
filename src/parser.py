@@ -20,3 +20,23 @@ def read_fasta(fasta_file="sequences.fasta") -> list[tuple[str, str]]:
                 (line[1:], file_str[i+1].strip())
             )
     return sequences
+
+def unique_sequences_stats(sequences: list[tuple[str, str]]) -> dict:
+    """
+    Creates a dict with all names with same target sequence
+    """
+    unique_sequences = {}
+    for name, seq in sequences:
+        if seq in unique_sequences.keys():
+            unique_sequences[seq].append(name)
+            continue
+        unique_sequences[seq] = [name]
+    return unique_sequences
+
+def export_unique_sequences_fasta(unique_sequences):
+    """
+    Creates a multi-Fasta file with all names corresponding to unique sequences
+    """
+    with open('unique_sequences.fa', 'w', encoding='UTF-8') as csvfile:
+        for target_seq, names in unique_sequences.items():
+            csvfile.write(f'>{"|".join(names)}\n{target_seq}\n')
