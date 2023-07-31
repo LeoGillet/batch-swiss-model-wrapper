@@ -1,13 +1,20 @@
+"""
+Module containing all requests used throughout the program
+"""
 import requests
 import yaml
-
-from src import config
 
 with open('config.yaml', 'r', encoding='UTF-8') as cf:
     API_TOKEN = yaml.safe_load(cf)["api"]["token"]
 
 
 def send_request(name, target):
+    """
+    Sends POST request to initiate an AutoModel job
+    :param name: name of the project
+    :param target: sequence to be used
+    :return: JSON Response {"project_id", "target_sequences", "date_created", "project_title"}
+    """
     response = requests.post(
         "https://swissmodel.expasy.org/automodel",
         headers={
@@ -16,26 +23,40 @@ def send_request(name, target):
         json={
             "target_sequences": target,
             "project_title": name
-        }
+        },
+        timeout=10
     )
     return response
 
 
 def check_status(project_id):
+    """
+    Checks whether the Job is completed or not via a GET request
+    :param project_id: ID of the project
+    :return: JSON Response
+    {"project_id", "status", "models", "date_created", "project_title", "view_url"}
+    """
     response = requests.get(
         f"https://swissmodel.expasy.org/project/{project_id}/models/summary/",
         headers={
             "Authorization": f"Token {API_TOKEN}"
-        }
+        },
+        timeout=10
     )
     return response
 
 
 def fetch_all_projects():
+    """
+    GET Request to get a list of all projects
+    :return: JSON Response
+    [{"project_id", "status", "date_created", "project_title", "project_type", "model_count"}, ...]
+    """
     response = requests.get(
         "https://swissmodel.expasy.org/projects/",
         headers={
             "Authorization": f"Token {API_TOKEN}"
-        }
+        },
+        timeout=10
     )
     return response

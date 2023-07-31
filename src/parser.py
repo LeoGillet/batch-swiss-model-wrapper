@@ -1,10 +1,17 @@
-from itertools import groupby
+"""
+Module that parses multi-fasta files
+"""
 
 
-def read_fasta(fasta_file="sequences.fasta"):
+def read_fasta(fasta_file="sequences.fasta") -> list[tuple[str, str]]:
+    """
+    Opens multi-FASTA file and returns list of pairs of sequences' name and sequence
+    :param fasta_file: path to fasta file
+    :return: list of sequences
+    """
     sequences = []
-    with open(fasta_file, 'r', encoding='UTF-8') as ff:
-        file_str = ff.readlines()
+    with open(fasta_file, 'r', encoding='UTF-8') as ffile:
+        file_str = ffile.readlines()
         for i, line in enumerate(file_str):
             line = line.strip()
             if not (i + 1) % 2 != 0:
