@@ -29,9 +29,9 @@ class Job:
         self._first_response = http.send_request(self.name, self.sequence)
         try:
             self.project_id = self._first_response.json()["project_id"]
-        except Exception:
-            print(self._first_response.json())
-            sys.exit(1)
+        except KeyError:
+            print("Rate limit exceeded.")
+            time.sleep(60)
         self.status = "SUBMITTED"
 
     def update_status(self):
