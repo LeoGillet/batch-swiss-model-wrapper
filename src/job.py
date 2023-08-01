@@ -29,12 +29,13 @@ class Job:
         try:
             self.project_id = self._first_response.json()["project_id"]
             print(self._first_response.json())
-            if self._first_response.status_code == 429: raise RuntimeError
+            if self._first_response.status_code == 429:
+                raise RuntimeError
         except (KeyError, TypeError, RuntimeError):
             print(f"Job {self.name}: Rate limit exceeded.")
-            time.sleep(60)        
+            time.sleep(60)
         else:
-            print(f"Job {self.name} status: {self.status} -> SUBMITTED") 
+            print(f"Job {self.name} status: {self.status} -> SUBMITTED")
             self.status = "SUBMITTED"
 
     def update_status(self):
@@ -45,17 +46,24 @@ class Job:
             raise RuntimeError(
                 f"Cannot check status of Job {self.name} because it has not yet been submitted."
             )
-        if self.status == "COMPLETED": return self.fetch_results()
+        if self.status == "COMPLETED":
+            return self.fetch_results()
         self._last_status_response = http.check_status(self.project_id)
-        print(f"Job {self.name} status: {self.status} -> {self._last_status_response.json()['status']}") 
+        print(
+            f"Job {self.name} status: {self.status} "
+            + "-> {self._last_status_response.json()['status']}"
+        )
         self.status = self._last_status_response.json()["status"]
+        return None
 
     def fetch_results(self):
         """
         Fetches models of completed job
         """
         if self.status not in ("COMPLETED", "FAILED"):
-            raise RuntimeError(f"Cannot fetch results of Job {self.name} that has not finished.")
+            raise RuntimeError(
+                f"Cannot fetch results of Job {self.name} that has not finished."
+            )
         if self.status == "FAILED":
             raise RuntimeError(f"Job {self.name} has failed. Stopping.")
         if self.status == "COMPLETED":

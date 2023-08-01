@@ -52,6 +52,7 @@ def fetch_all_projects():
     )
     return response
 
+
 def model_summary(project_id):
     """
     Sends a GET request to get models information summary about project
@@ -62,6 +63,7 @@ def model_summary(project_id):
         timeout=10,
     )
     return response
+
 
 def download_all() -> dict:
     """
@@ -80,6 +82,9 @@ def download_all() -> dict:
 
 
 def get_download_url(download_id):
+    """
+    Gets download URL from archived projects' download ID
+    """
     response = requests.get(
         f"https://swissmodel.expasy.org/projects/download/{download_id}",
         headers={"Authorization": f"Token {API_TOKEN}"},
@@ -89,8 +94,13 @@ def get_download_url(download_id):
 
 
 def download(url):
-    response = requests.get(url, allow_redirects=True, headers={
-        "Authorization": f"Token {API_TOKEN}"
-    },
-    timeout=30)
+    """
+    Sends a GET request to a file's direct link to download it
+    """
+    response = requests.get(
+        url,
+        allow_redirects=True,
+        headers={"Authorization": f"Token {API_TOKEN}"},
+        timeout=30,
+    )
     return response.content

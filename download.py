@@ -1,4 +1,8 @@
-import time, os
+"""
+Download models from csv with ID, Title and URLs
+"""
+import os
+import time
 
 from src import http
 
