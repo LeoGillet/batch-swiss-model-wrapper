@@ -61,8 +61,8 @@ def download_all() -> dict:
         "https://swissmodel.expasy.org/projects/download/",
         headers={"Authorization": f"Token {API_TOKEN}"},
         json={
-            "from_datetime": "2023-07-28T16:14:10",
-            "to_datetime": "2023-07-28T16:22:41",
+            "from_datetime": "2023-07-28T16:22:38",
+            "to_datetime": "2023-07-28T16:22:40",
         },
         timeout=30,
     )
