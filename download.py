@@ -1,15 +1,23 @@
-import time
+import time, os
+
 from src import http
 
 if __name__ == '__main__':
-    response_json = http.download_all()
-    print(response_json)
-    download_id = response_json["download_id"]
-    download_results = http.get_download_url(download_id)
-    while download_results["status"] in ("INITIALISED", "QUEUEING", "RUNNING") \
-        or "download_url" not in download_results.keys():
-        download_results = http.get_download_url(download_id)
-        print("Download is not ready. Status of request is", download_results["status"])
-        time.sleep(10)
-    print("Download is ready. Status of request is", download_results["status"])
-    print(download_results["download_url"])
+    try:
+        os.makedirs('download')
+    except FileExistsError:
+        pass
+    with open('exported_coordinates_final.csv', 'r', encoding='UTF-8') as coords_file:
+        coords = coords_file.readlines()
+    for coord in coords:
+        project_id, project_title, url = coord.strip().split(',')
+        if not os.path.exists(f"download/{project_id}/model.pdb"):
+            os.makedirs(f'download/{project_id}')
+            file_content = http.download(url)
+            print(f"Downloaded model {project_id}. File is {len(file_content)} bytes long.")
+            with open(f'download/{project_id}/model.pdb', 'wb') as downloaded_file:
+                downloaded_file.write(file_content)
+            time.sleep(3)
+        with open(f"download/{project_id}/info.txt", 'w', encoding='UTF-8') as infofile:
+            for name in project_title.split('|'):
+                infofile.write(f"{name}\n")

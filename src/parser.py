@@ -3,7 +3,7 @@ Module that parses multi-fasta files
 """
 
 
-def read_fasta(fasta_file="sequences.fasta") -> list[tuple[str, str]]:
+def read_fasta(fasta_file="sequences.fasta", ignore_seq=False) -> list[tuple[str, str]]:
     """
     Opens multi-FASTA file and returns list of pairs of sequences' name and sequence
     :param fasta_file: path to fasta file
@@ -16,9 +16,12 @@ def read_fasta(fasta_file="sequences.fasta") -> list[tuple[str, str]]:
             line = line.strip()
             if not (i + 1) % 2 != 0:
                 continue
-            sequences.append(
-                (line[1:], file_str[i+1].strip())
-            )
+            if ignore_seq:
+                sequences.append(line[1:])
+            else:
+                sequences.append(
+                    (line[1:], file_str[i+1].strip())
+                )
     return sequences
 
 def unique_sequences_stats(sequences: list[tuple[str, str]]) -> dict:

@@ -279,3 +279,5 @@ pyrightconfig.json
 *.fasta
 *.fa
 config.yaml
+download/*
+*.csv
