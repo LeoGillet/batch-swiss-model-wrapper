@@ -45,6 +45,7 @@ class Job:
             raise RuntimeError(
                 f"Cannot check status of Job {self.name} because it has not yet been submitted."
             )
+        if self.status == "COMPLETED": return self.fetch_results()
         self._last_status_response = http.check_status(self.project_id)
         print(f"Job {self.name} status: {self.status} -> {self._last_status_response.json()['status']}") 
         self.status = self._last_status_response.json()["status"]
@@ -89,7 +90,7 @@ def submit_all_jobs(jobs):
         thread = threading.Thread(target=job.submit_task)
         thread.start()
         submit_threads.append(thread)
-        time.sleep(5)
+        time.sleep(1)
 
     for thread in submit_threads:
         thread.join()

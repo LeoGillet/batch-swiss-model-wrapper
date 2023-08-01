@@ -4,7 +4,7 @@ Module containing all requests used throughout the program
 import requests
 import yaml
 
-with open('config.yaml', 'r', encoding='UTF-8') as cf:
+with open("config.yaml", "r", encoding="UTF-8") as cf:
     API_TOKEN = yaml.safe_load(cf)["api"]["token"]
 
 
@@ -17,14 +17,9 @@ def send_request(name, target):
     """
     response = requests.post(
         "https://swissmodel.expasy.org/automodel",
-        headers={
-            "Authorization": f"Token {API_TOKEN}"
-        },
-        json={
-            "target_sequences": target,
-            "project_title": name
-        },
-        timeout=10
+        headers={"Authorization": f"Token {API_TOKEN}"},
+        json={"target_sequences": target, "project_title": name},
+        timeout=10,
     )
     return response
 
@@ -38,10 +33,8 @@ def check_status(project_id):
     """
     response = requests.get(
         f"https://swissmodel.expasy.org/project/{project_id}/models/summary/",
-        headers={
-            "Authorization": f"Token {API_TOKEN}"
-        },
-        timeout=10
+        headers={"Authorization": f"Token {API_TOKEN}"},
+        timeout=10,
     )
     return response
 
@@ -54,9 +47,32 @@ def fetch_all_projects():
     """
     response = requests.get(
         "https://swissmodel.expasy.org/projects/",
-        headers={
-            "Authorization": f"Token {API_TOKEN}"
-        },
-        timeout=10
+        headers={"Authorization": f"Token {API_TOKEN}"},
+        timeout=10,
     )
     return response
+
+
+def download_all() -> dict:
+    """
+    Sends a POST request in order to generate an archive of all completed jobs' results
+    """
+    response = requests.post(
+        "https://swissmodel.expasy.org/projects/download/",
+        headers={"Authorization": f"Token {API_TOKEN}"},
+        json={
+            "from_datetime": "2023-07-28T16:14:10",
+            "to_datetime": "2023-07-28T16:22:41",
+        },
+        timeout=30,
+    )
+    return response.json()
+
+
+def get_download_url(download_id):
+    response = requests.get(
+        f"https://swissmodel.expasy.org/projects/download/{download_id}",
+        headers={"Authorization": f"Token {API_TOKEN}"},
+        timeout=10,
+    )
+    return response.json()
